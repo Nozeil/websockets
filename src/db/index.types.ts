@@ -1,5 +1,5 @@
-import type { ReqData } from '../models/reg';
+import type { RegData } from '../models/reg';
 
-export interface User extends ReqData {
+export interface User extends RegData {
   index: number;
 }

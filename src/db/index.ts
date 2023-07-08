@@ -1,4 +1,4 @@
-import type { ReqData } from '../models/reg';
+import type { RegData } from '../models/reg';
 import { User } from './index.types';
 
 class DB {
@@ -14,7 +14,7 @@ class DB {
     this._userIndex += 1;
   }
 
-  setUser = ({ name, password }: ReqData) => {
+  setUser = ({ name, password }: RegData) => {
     const index = this._userIndex;
     const user = { name, password, index };
     this._db.set(index, user);
