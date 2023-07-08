@@ -21,7 +21,9 @@ export const startWsServer = () => {
 
         if (handler) {
           const resp = handler(req);
-          ws.send(JSON.stringify(resp));
+          const result = JSON.stringify(resp);
+          console.log(`Command: ${resp.type}, result:${result}`);
+          ws.send(result);
         } else {
           console.error('Wrong type');
         }
