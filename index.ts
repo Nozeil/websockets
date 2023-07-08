@@ -9,6 +9,7 @@ console.log(`Start static http server on the ${HTTP_PORT} port!`);
 httpServer.listen(HTTP_PORT);
 
 const wsServer = startWsServer();
+
 wsServer.listen(WS_PORT, () => {
   const serverInfo = wsServer.address();
 
@@ -18,3 +19,5 @@ wsServer.listen(WS_PORT, () => {
     );
   }
 });
+
+process.on('SIGINT', () => wsServer.close());
