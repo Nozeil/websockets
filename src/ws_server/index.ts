@@ -12,6 +12,10 @@ export const startWsServer = () => {
   wss.on('connection', function connection(ws) {
     ws.on('error', console.error);
 
+    ws.on('close', () => {
+      controller.deleteUser(ws);
+    });
+
     ws.on('message', function message(data) {
       console.log('received: %s', data);
 
@@ -20,10 +24,10 @@ export const startWsServer = () => {
         const handler = controller.getHandler(req.type);
 
         if (handler) {
-          const resp = handler(req);
+          const resp = handler(req, this);
           const result = JSON.stringify(resp);
           console.log(`Command: ${resp.type}, result:${result}`);
-          ws.send(result);
+          this.send(result);
         } else {
           console.error('Wrong type');
         }
