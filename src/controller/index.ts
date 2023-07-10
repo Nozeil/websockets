@@ -9,7 +9,7 @@ export class Controller {
   private _router: RouterMap;
 
   constructor() {
-    this._db = new DB();
+    this._db = DB.getInstance();
     this._services = new Services(this._db);
     this._router = new Map(this._services.createRoutes());
   }

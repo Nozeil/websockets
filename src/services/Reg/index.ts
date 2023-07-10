@@ -2,15 +2,30 @@ import { WebSocket } from 'ws';
 import DB from '../../db';
 import { RequestResponse } from '../../models/common';
 import { RegData } from '../../models/reg';
+import type { RoomsService } from '../Rooms';
 
 export class RegService {
-  db: DB;
+  private _db: DB;
+  private _rooms: RoomsService;
 
-  constructor(db: DB) {
-    this.db = db;
+  constructor(db: DB, rooms: RoomsService) {
+    this._db = db;
+    this._rooms = rooms;
   }
 
   isValidUser = ({ name, password }: RegData) => name.length >= 5 && password.length >= 5;
+
+  getResponses = (req: RequestResponse, ws: WebSocket) => {
+    const user = this.createUser(req, ws);
+    const responses: RequestResponse[] = [user];
+    const size = this._rooms.getSize();
+
+    if (size) {
+      responses.push(this._rooms.updateRoom());
+    }
+
+    return responses;
+  };
 
   createUser = ({ type, data, id }: RequestResponse, ws: WebSocket) => {
     const userData: RegData = JSON.parse(data);
@@ -18,16 +33,15 @@ export class RegService {
 
     const resData = {
       name: userData.name,
-      index: isValid ? this.db.setUser(ws, userData) : -1,
+      index: isValid ? this._db.setUser(ws, userData) : -1,
       error: !isValid,
       errorText: isValid ? '' : 'Name or password length should be not less than 5',
     };
-    const stringifyedResData = JSON.stringify(resData);
-    const res: RequestResponse = {
+
+    return {
       type,
       id,
-      data: stringifyedResData,
+      data: JSON.stringify(resData),
     };
-    return res;
   };
 }
