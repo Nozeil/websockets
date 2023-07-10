@@ -2,6 +2,7 @@ import { WebSocket, WebSocketServer } from 'ws';
 import { createServer } from 'http';
 import type { RequestResponse } from '../models/common';
 import { Controller } from '../controller';
+import { REQ_RES_TYPES } from '../constants';
 
 export const startWsServer = () => {
   const server = createServer();
@@ -30,7 +31,10 @@ export const startWsServer = () => {
           responses.forEach((serviceRes) => {
             const result = JSON.stringify(serviceRes);
 
-            if (serviceRes.type === 'update_room' || serviceRes.type === 'update_winners') {
+            if (
+              serviceRes.type === REQ_RES_TYPES.UPDATE_ROOM ||
+              serviceRes.type === REQ_RES_TYPES.UPDATE_WINNERS
+            ) {
               wss.clients.forEach((client) => {
                 if (client !== ws && client.readyState === WebSocket.OPEN) {
                   client.send(result);

@@ -3,6 +3,7 @@ import { Room } from '../Room';
 import type { WebSocket } from 'ws';
 import type { RequestResponse } from '../../models/common';
 import type { AvailableRooms } from '../../models/room';
+import { REQ_RES_TYPES } from '../../constants';
 
 export class RoomsService {
   private _rooms: Map<number, Room>;
@@ -56,7 +57,7 @@ export class RoomsService {
     });
 
     const result: RequestResponse = {
-      type: 'update_room',
+      type: REQ_RES_TYPES.UPDATE_ROOM,
       data: JSON.stringify(data),
       id: 0,
     };

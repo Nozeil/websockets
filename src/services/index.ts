@@ -1,3 +1,4 @@
+import { REQ_RES_TYPES } from '../constants';
 import { Routes } from '../controller/index.types';
 import DB from '../db';
 import { RegService } from './Reg';
@@ -14,8 +15,8 @@ export class Services {
 
   createRoutes = () => {
     const routes: Routes = [
-      ['reg', (req, ws) => this._reg.getResponses(req, ws)],
-      ['create_room', (req, ws) => this._rooms.getResponses(req, ws)],
+      [REQ_RES_TYPES.REG, (req, ws) => this._reg.getResponses(req, ws)],
+      [REQ_RES_TYPES.CREATE_ROOM, (req, ws) => this._rooms.getResponses(req, ws)],
     ];
     return routes;
   };
