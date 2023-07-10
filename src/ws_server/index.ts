@@ -30,11 +30,9 @@ export const startWsServer = () => {
 
           responses.forEach((serviceRes) => {
             const result = JSON.stringify(serviceRes);
+            const type = serviceRes.type;
 
-            if (
-              serviceRes.type === REQ_RES_TYPES.UPDATE_ROOM ||
-              serviceRes.type === REQ_RES_TYPES.UPDATE_WINNERS
-            ) {
+            if (type === REQ_RES_TYPES.UPDATE_ROOM || type === REQ_RES_TYPES.UPDATE_WINNERS) {
               wss.clients.forEach((client) => {
                 if (client !== ws && client.readyState === WebSocket.OPEN) {
                   client.send(result);

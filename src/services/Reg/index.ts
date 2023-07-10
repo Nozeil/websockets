@@ -15,7 +15,7 @@ export class RegService {
 
   isValidUser = ({ name, password }: RegData) => name.length >= 5 && password.length >= 5;
 
-  getResponses = (req: RequestResponse, ws: WebSocket) => {
+  regUser = (req: RequestResponse, ws: WebSocket) => {
     const user = this.createUser(req, ws);
     const responses: RequestResponse[] = [user];
     const size = this._rooms.getSize();

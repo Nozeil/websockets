@@ -16,15 +16,15 @@ export class RoomsService {
     this._roomId = 1;
   }
 
-  getResponses = (_: RequestResponse, ws: WebSocket) => {
-    this.createRoom(ws);
+  createRoom = (_: RequestResponse, ws: WebSocket) => {
+    this.addRoom(ws);
     const updatedRoom = this.updateRoom();
     const responses = [updatedRoom];
 
     return responses;
   };
 
-  createRoom = (ws: WebSocket) => {
+  addRoom = (ws: WebSocket) => {
     const room = new Room();
     const player1 = this._db.getUser(ws);
 
@@ -63,6 +63,22 @@ export class RoomsService {
     };
 
     return result;
+  };
+
+  addUserToRoom = (req: RequestResponse, ws: WebSocket) => {
+    const { indexRoom }: { indexRoom: number } = JSON.parse(req.data);
+    const user = this._db.getUser(ws);
+    const room = this._rooms.get(indexRoom);
+    const responses: RequestResponse[] = [];
+
+    if (room && user) {
+      const isSeted = room.setPlayer(user);
+      if (isSeted) {
+        responses.push(this.updateRoom());
+      }
+    }
+
+    return responses;
   };
 
   getSize = () => {
