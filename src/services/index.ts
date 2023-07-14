@@ -21,6 +21,7 @@ export class Services {
       [REQ_RES_TYPES.REG, (req, ws) => this._reg.regUser(req, ws)],
       [REQ_RES_TYPES.CREATE_ROOM, (req, ws) => this._rooms.createRoom(req, ws)],
       [REQ_RES_TYPES.ADD_USER_TO_ROOM, (req, ws) => this._rooms.addUserToRoom(req, ws)],
+      [REQ_RES_TYPES.ADD_SHIPS, (req, ws) => this._games.addShips(req, ws)],
     ];
     return routes;
   };

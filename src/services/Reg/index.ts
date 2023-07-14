@@ -1,6 +1,6 @@
 import { WebSocket } from 'ws';
 import DB from '../../db';
-import { RequestResponse } from '../../models/common';
+import { HandlerReturnType, RequestResponse } from '../../models/common';
 import { RegData } from '../../models/reg';
 import type { RoomsService } from '../Rooms';
 
@@ -24,7 +24,9 @@ export class RegService {
       responses.push(this._rooms.updateRoom());
     }
 
-    return [{ ws, responses }];
+    const result: HandlerReturnType = [{ ws, responses }];
+
+    return result;
   };
 
   createUser = ({ type, data, id }: RequestResponse, ws: WebSocket) => {

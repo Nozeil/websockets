@@ -1,7 +1,7 @@
 import DB from '../../db';
 import { Room } from '../Room';
 import type { WebSocket } from 'ws';
-import type { RequestResponse } from '../../models/common';
+import type { HandlerReturnType, RequestResponse } from '../../models/common';
 import type { AvailableRooms } from '../../models/room';
 import { REQ_RES_TYPES } from '../../constants';
 import { GamesService } from '../Games';
@@ -24,7 +24,7 @@ export class RoomsService {
     this.addRoom(ws);
     const updatedRoom = this.updateRoom();
     const responses = [updatedRoom];
-    const result = [];
+    const result: HandlerReturnType = [];
 
     for (const ws of webSockets) {
       result.push({ ws, responses });
@@ -78,14 +78,19 @@ export class RoomsService {
     const { indexRoom }: { indexRoom: number } = JSON.parse(req.data);
     const user = this._db.getUser(ws);
     const room = this._rooms.get(indexRoom);
-    const result = [];
+    const result: HandlerReturnType = [];
 
     if (room && user) {
       room.setPlayer(user);
       const { player1, player2 } = room.getPlayers();
 
       if (player1 && player2) {
-        const gameResp = this._games.createGame(player1.index, player2.index);
+        const gameResp = this._games.createGame(
+          player1.ws,
+          player2.ws,
+          player1.index,
+          player2.index
+        );
 
         const player1Resp = gameResp.get(player1.index);
         const player2Resp = gameResp.get(player2.index);
