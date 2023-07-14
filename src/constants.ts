@@ -9,4 +9,5 @@ export const REQ_RES_TYPES = {
   CREATE_GAME: 'create_game',
   ADD_SHIPS: 'add_ships',
   START_GAME: 'start_game',
+  TURN: 'turn',
 } as const;
