@@ -1,9 +1,7 @@
-import { WebSocket, WebSocketServer } from 'ws';
+import { WebSocketServer } from 'ws';
 import { createServer } from 'http';
 import type { RequestResponse } from '../models/common';
 import { Controller } from '../controller';
-import { REQ_RES_TYPES } from '../constants';
-import { logCb } from '../utils';
 
 export const startWsServer = () => {
   const server = createServer();
@@ -27,21 +25,16 @@ export const startWsServer = () => {
         const handler = controller.getHandler(req.type);
 
         if (handler) {
-          const responses = handler(req, this);
+          const webSocketsWithResponses = handler(req, this);
 
-          responses.forEach((serviceRes) => {
-            const result = JSON.stringify(serviceRes);
-            const type = serviceRes.type;
-
-            if (type === REQ_RES_TYPES.UPDATE_ROOM || type === REQ_RES_TYPES.UPDATE_WINNERS) {
-              wss.clients.forEach((client) => {
-                if (client !== ws && client.readyState === WebSocket.OPEN) {
-                  client.send(result, () => logCb(type, result));
-                }
-              });
-            }
-
-            this.send(result, () => logCb(type, result));
+          webSocketsWithResponses.forEach((wsWithResponse) => {
+            wsWithResponse.responses.forEach((response) => {
+              const ws = wsWithResponse.ws;
+              const stringifyedResponse = JSON.stringify(response);
+              ws.send(stringifyedResponse, () =>
+                console.log(`Command: ${response.type}, result:${stringifyedResponse}`)
+              );
+            });
           });
         } else {
           console.error('Wrong type');

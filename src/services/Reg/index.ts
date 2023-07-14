@@ -24,7 +24,7 @@ export class RegService {
       responses.push(this._rooms.updateRoom());
     }
 
-    return responses;
+    return [{ ws, responses }];
   };
 
   createUser = ({ type, data, id }: RequestResponse, ws: WebSocket) => {

@@ -33,6 +33,10 @@ class DB {
   deleteUser = (ws: WebSocket) => {
     this._db.delete(ws);
   };
+
+  getAllWebSockets = () => {
+    return this._db.keys();
+  };
 }
 
 export default DB;

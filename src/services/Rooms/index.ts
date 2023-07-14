@@ -5,7 +5,6 @@ import type { RequestResponse } from '../../models/common';
 import type { AvailableRooms } from '../../models/room';
 import { REQ_RES_TYPES } from '../../constants';
 import { GamesService } from '../Games';
-import { logCb } from '../../utils';
 
 export class RoomsService {
   private _rooms: Map<number, Room>;
@@ -21,11 +20,17 @@ export class RoomsService {
   }
 
   createRoom = (_: RequestResponse, ws: WebSocket) => {
+    const webSockets = this._db.getAllWebSockets();
     this.addRoom(ws);
     const updatedRoom = this.updateRoom();
     const responses = [updatedRoom];
+    const result = [];
 
-    return responses;
+    for (const ws of webSockets) {
+      result.push({ ws, responses });
+    }
+
+    return result;
   };
 
   addRoom = (ws: WebSocket) => {
@@ -73,7 +78,7 @@ export class RoomsService {
     const { indexRoom }: { indexRoom: number } = JSON.parse(req.data);
     const user = this._db.getUser(ws);
     const room = this._rooms.get(indexRoom);
-    const responses: RequestResponse[] = [];
+    const result = [];
 
     if (room && user) {
       room.setPlayer(user);
@@ -86,18 +91,15 @@ export class RoomsService {
         const player2Resp = gameResp.get(player2.index);
 
         if (player1Resp && player2Resp) {
-          const player1Result = JSON.stringify(player1Resp);
-          const player2Result = JSON.stringify(player2Resp);
+          const updateResp = this.updateRoom();
 
-          player1.ws.send(player1Result, () => logCb(player1Resp.type, player1Result));
-          player2.ws.send(player2Result, () => logCb(player2Resp.type, player1Result));
-
-          responses.push(this.updateRoom()); // [{ws, responses}]
+          result.push({ ws: player1.ws, responses: [player1Resp, updateResp] });
+          result.push({ ws: player2.ws, responses: [player2Resp, updateResp] });
         }
       }
     }
 
-    return responses;
+    return result;
   };
 
   getSize = () => {
