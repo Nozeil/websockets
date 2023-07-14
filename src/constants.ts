@@ -6,4 +6,5 @@ export const REQ_RES_TYPES = {
   UPDATE_ROOM: 'update_room',
   UPDATE_WINNERS: 'update_winners',
   ADD_USER_TO_ROOM: 'add_user_to_room',
+  CREATE_GAME: 'create_game',
 };

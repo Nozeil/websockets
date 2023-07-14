@@ -11,24 +11,32 @@ export class Room {
 
   setPlayer1 = (player: User) => {
     this._player1 = player;
+    return this._player1;
   };
 
   setPlayer2 = (player: User) => {
     this._player2 = player;
+    return this._player2;
   };
 
   setPlayer = (player: User) => {
     const activePlayer = this.getActivePlayer();
 
     if (this.isFull() || activePlayer?.index === player.index) {
-      return false;
+      return;
     }
 
-    this._player1 ? this.setPlayer2(player) : this.setPlayer1(player);
-    return true;
+    return this._player1 ? this.setPlayer2(player) : this.setPlayer1(player);
   };
 
   isFull = () => this._player1 && this._player2;
 
   getActivePlayer = () => this._player1 ?? this._player2;
+
+  getPlayers = () => {
+    return {
+      player1: this._player1,
+      player2: this._player2,
+    };
+  };
 }

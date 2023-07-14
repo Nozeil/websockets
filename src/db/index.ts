@@ -12,10 +12,6 @@ class DB {
     this._userIndex = 1;
   }
 
-  private increaseIndex() {
-    this._userIndex += 1;
-  }
-
   static getInstance = () => {
     if (!DB._instance) {
       DB._instance = new DB();
@@ -29,11 +25,9 @@ class DB {
   };
 
   setUser = (ws: WebSocket, { name, password }: RegData) => {
-    const index = this._userIndex;
-    const user = { name, password, index };
+    const user = { name, password, index: this._userIndex++, ws };
     this._db.set(ws, user);
-    this.increaseIndex();
-    return index;
+    return user.index;
   };
 
   deleteUser = (ws: WebSocket) => {
