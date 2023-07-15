@@ -16,6 +16,11 @@ export interface AddShips {
   indexPlayer: number;
 }
 
+export interface RandomAttackReq {
+  gameId: number;
+  indexPlayer: number;
+}
+
 export interface AttackReq {
   gameId: number;
   x: number;

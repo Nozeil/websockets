@@ -23,6 +23,7 @@ export class Services {
       [REQ_RES_TYPES.ADD_USER_TO_ROOM, (req, ws) => this._rooms.addUserToRoom(req, ws)],
       [REQ_RES_TYPES.ADD_SHIPS, (req, ws) => this._games.addShips(req, ws)],
       [REQ_RES_TYPES.ATTACK, (req, ws) => this._games.attack(req, ws)],
+      [REQ_RES_TYPES.RANDOM_ATTACK, (req, ws) => this._games.randomAttack(req, ws)],
     ];
     return routes;
   };

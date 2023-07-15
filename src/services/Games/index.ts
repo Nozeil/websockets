@@ -1,5 +1,5 @@
 import { WebSocket } from 'ws';
-import type { AddShips, AttackReq } from '../../models/game';
+import type { AddShips, AttackReq, RandomAttackReq } from '../../models/game';
 import { GameService } from '../Game';
 import type { Handler } from '../../types';
 
@@ -31,5 +31,18 @@ export class GamesService {
     const game = this._games.get(gameId);
 
     return game?.attack(indexPlayer, x, y) ?? [];
+  };
+
+  randomAttack: Handler = (req, _) => {
+    const { gameId, indexPlayer }: RandomAttackReq = JSON.parse(req.data);
+    const game = this._games.get(gameId);
+
+    const [randomX, randomY] = [this.generateRandomCoordinate(), this.generateRandomCoordinate()];
+
+    return game?.attack(indexPlayer, randomX, randomY) ?? [];
+  };
+
+  generateRandomCoordinate = () => {
+    return Math.floor(Math.random() * 9);
   };
 }

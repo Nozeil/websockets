@@ -11,5 +11,5 @@ export const REQ_RES_TYPES = {
   START_GAME: 'start_game',
   TURN: 'turn',
   ATTACK: 'attack',
-  RANDOM_ATTACK: 'random_attack',
+  RANDOM_ATTACK: 'randomAttack',
 } as const;
