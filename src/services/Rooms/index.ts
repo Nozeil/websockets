@@ -1,10 +1,11 @@
 import DB from '../../db';
 import { Room } from '../Room';
 import type { WebSocket } from 'ws';
-import type { HandlerReturnType, RequestResponse } from '../../models/common';
+import type { RequestResponse } from '../../models/common';
 import type { AvailableRooms } from '../../models/room';
 import { REQ_RES_TYPES } from '../../constants';
 import { GamesService } from '../Games';
+import type { Handler, HandlerReturnType } from '../../types';
 
 export class RoomsService {
   private _rooms: Map<number, Room>;
@@ -19,7 +20,7 @@ export class RoomsService {
     this._games = games;
   }
 
-  createRoom = (_: RequestResponse, ws: WebSocket) => {
+  createRoom: Handler = (_, ws) => {
     const webSockets = this._db.getAllWebSockets();
     this.addRoom(ws);
     const updatedRoom = this.updateRoom();
@@ -74,7 +75,7 @@ export class RoomsService {
     return result;
   };
 
-  addUserToRoom = (req: RequestResponse, ws: WebSocket) => {
+  addUserToRoom: Handler = (req, ws) => {
     const { indexRoom }: { indexRoom: number } = JSON.parse(req.data);
     const user = this._db.getUser(ws);
     const room = this._rooms.get(indexRoom);

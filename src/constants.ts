@@ -10,4 +10,6 @@ export const REQ_RES_TYPES = {
   ADD_SHIPS: 'add_ships',
   START_GAME: 'start_game',
   TURN: 'turn',
+  ATTACK: 'attack',
+  RANDOM_ATTACK: 'random_attack',
 } as const;

@@ -1,7 +1,7 @@
 import { WebSocket } from 'ws';
-import type { RequestResponse } from '../../models/common';
-import { AddShips } from '../../models/game';
+import type { AddShips, AttackReq } from '../../models/game';
 import { GameService } from '../Game';
+import type { Handler } from '../../types';
 
 export class GamesService {
   private _id: number;
@@ -19,10 +19,17 @@ export class GamesService {
     return responses;
   };
 
-  addShips = (req: RequestResponse, _: WebSocket) => {
+  addShips: Handler = (req, _) => {
     const { gameId, indexPlayer, ships }: AddShips = JSON.parse(req.data);
     const game = this._games.get(gameId);
 
     return game?.setShips(indexPlayer, ships) ?? [];
+  };
+
+  attack: Handler = (req, _) => {
+    const { gameId, indexPlayer, x, y }: AttackReq = JSON.parse(req.data);
+    const game = this._games.get(gameId);
+
+    return game?.attack(indexPlayer, x, y) ?? [];
   };
 }

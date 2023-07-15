@@ -1,11 +1,9 @@
-interface Ship {
-  position: {
-    x: number;
-    y: number;
-  };
-  direction: boolean;
-  length: number;
-  type: 'small' | 'medium' | 'large' | 'huge';
-}
+import type { RequestResponse } from './models/common';
+import type { WebSocket } from 'ws';
 
-export type Ships = Ship[];
+export type Handler = (
+  req: RequestResponse,
+  ws: WebSocket
+) => { ws: WebSocket; responses: RequestResponse[] }[];
+
+export type HandlerReturnType = ReturnType<Handler>;

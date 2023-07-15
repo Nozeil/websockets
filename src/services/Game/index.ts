@@ -1,18 +1,28 @@
 import { WebSocket } from 'ws';
 import { REQ_RES_TYPES } from '../../constants';
-import type { HandlerReturnType, RequestResponse } from '../../models/common';
-import type { Ships } from '../../types';
+import type { RequestResponse } from '../../models/common';
+import { Ship } from '../Ship';
+import { ShipsReq } from '../../models/game';
+import type { HandlerReturnType } from '../../types';
 
 export class GameService {
   private _id: number;
-  private _players: Map<number, { ws: WebSocket; id: number; ships: Ships }>;
+  private _players: Map<
+    number,
+    {
+      ws: WebSocket;
+      id: number;
+      ships: Ship[];
+      shipsRes: ShipsReq;
+    }
+  >;
   private _turn: number;
 
   constructor(id: number, player1Id: number, player2Id: number, ws1: WebSocket, ws2: WebSocket) {
     this._id = id;
     this._players = new Map([
-      [player1Id, { ws: ws1, id: player1Id, ships: [] }],
-      [player2Id, { ws: ws2, id: player2Id, ships: [] }],
+      [player1Id, { ws: ws1, id: player1Id, ships: [], shipsRes: [] }],
+      [player2Id, { ws: ws2, id: player2Id, ships: [], shipsRes: [] }],
     ]);
     this._turn = this.randomizeFirstTurn();
   }
@@ -44,11 +54,15 @@ export class GameService {
     return Array.from(this._players.keys());
   };
 
-  setShips = (playerId: number, ships: Ships) => {
+  setShips = (playerId: number, ships: ShipsReq) => {
     const player = this._players.get(playerId);
+    const createdShips = ships.map(
+      (ship, index) => new Ship(ship.position, ship.length, ship.direction, index)
+    );
 
     if (player) {
-      player.ships = ships;
+      player.ships = createdShips;
+      player.shipsRes = ships;
       this._players.set(player.id, player);
     }
 
@@ -64,7 +78,7 @@ export class GameService {
     const result: HandlerReturnType = [];
 
     this._players.forEach((player) => {
-      const data = JSON.stringify({ ships: player.ships, currentPlayerIndex: player.id });
+      const data = JSON.stringify({ ships: player.shipsRes, currentPlayerIndex: player.id });
       const startResponse: RequestResponse = { type: REQ_RES_TYPES.START_GAME, data, id: 0 };
       const turnResponse = this.getTurnResp();
       const responses = [startResponse, turnResponse];
@@ -81,9 +95,13 @@ export class GameService {
     return random > 0.5 ? player1Id : player2Id;
   };
 
-  switchTurn = () => {
+  getOpponentId = (currPlayerId: number) => {
     const ids = this.getAllPlayersIds();
-    const turn = ids.find((id) => id !== this._turn);
+    return ids.find((id) => id !== currPlayerId);
+  };
+
+  switchTurn = () => {
+    const turn = this.getOpponentId(this._turn);
 
     if (turn) {
       this._turn = turn;
@@ -102,5 +120,86 @@ export class GameService {
     };
 
     return response;
+  };
+
+  createAttackResponse = (x: number, y: number, currentPlayer: number, status: string) => {
+    const data = { position: { x, y }, currentPlayer, status };
+
+    const attackResponse: RequestResponse = {
+      type: 'attack',
+      data: JSON.stringify(data),
+      id: 0,
+    };
+
+    return attackResponse;
+  };
+
+  createAttackResponses = (
+    x: number,
+    y: number,
+    currentPlayer: number,
+    status: string,
+    shipId: number,
+    ships: Ship[]
+  ) => {
+    const mainResponse = this.createAttackResponse(x, y, currentPlayer, status);
+    const attackResponses: RequestResponse[] = [mainResponse];
+
+    if (status === 'killed' && shipId >= 0) {
+      const ship = ships[shipId];
+      const cellsAround = ship.getCellsArround();
+
+      cellsAround.forEach((cell) => {
+        const response = this.createAttackResponse(cell.x, cell.y, currentPlayer, 'miss');
+        attackResponses.push(response);
+      });
+    }
+
+    return attackResponses;
+  };
+
+  attack = (indexPlayer: number, x: number, y: number) => {
+    const result: HandlerReturnType = [];
+
+    if (this._turn === indexPlayer) {
+      const opponentId = this.getOpponentId(indexPlayer);
+
+      if (opponentId) {
+        const currentPlayer = this._players.get(indexPlayer);
+        const opponent = this._players.get(opponentId);
+
+        if (opponent && currentPlayer) {
+          const statuses = opponent.ships.map((ship) => ship.getAttackStatus(x, y));
+
+          const status = statuses.find((status) => status.attackStatus !== 'miss') ?? {
+            shipId: -1,
+            attackStatus: 'miss',
+            shipStatus: 'alive',
+          };
+
+          const attackResponses = this.createAttackResponses(
+            x,
+            y,
+            indexPlayer,
+            status.attackStatus,
+            status.shipId,
+            opponent.ships
+          );
+
+          if (status.attackStatus === 'miss') {
+            this.switchTurn();
+          }
+
+          const turnResponse = this.getTurnResp();
+
+          result.push(
+            { ws: currentPlayer.ws, responses: [...attackResponses, turnResponse] },
+            { ws: opponent.ws, responses: [...attackResponses, turnResponse] }
+          );
+        }
+      }
+    }
+
+    return result;
   };
 }

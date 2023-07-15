@@ -1,8 +1,9 @@
 import { WebSocket } from 'ws';
 import DB from '../../db';
-import { HandlerReturnType, RequestResponse } from '../../models/common';
+import { RequestResponse } from '../../models/common';
 import { RegData } from '../../models/reg';
 import type { RoomsService } from '../Rooms';
+import type { Handler, HandlerReturnType } from '../../types';
 
 export class RegService {
   private _db: DB;
@@ -15,7 +16,7 @@ export class RegService {
 
   isValidUser = ({ name, password }: RegData) => name.length >= 5 && password.length >= 5;
 
-  regUser = (req: RequestResponse, ws: WebSocket) => {
+  regUser: Handler = (req, ws) => {
     const user = this.createUser(req, ws);
     const responses: RequestResponse[] = [user];
     const size = this._rooms.getSize();
