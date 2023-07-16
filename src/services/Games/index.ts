@@ -43,6 +43,6 @@ export class GamesService {
   };
 
   generateRandomCoordinate = () => {
-    return Math.floor(Math.random() * 9);
+    return Math.floor(Math.random() * 10);
   };
 }

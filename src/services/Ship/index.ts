@@ -55,12 +55,16 @@ export class Ship {
       const y = coordinate.y;
 
       if (this._direction) {
-        if (!index && !y) {
+        if (!index && y) {
+          cells.push({ x: x - 1, y: y - 1 });
           cells.push({ x, y: y - 1 });
+          cells.push({ x: x + 1, y: y - 1 });
         }
 
         if (index === arr.length - 1 && y !== maxY) {
+          cells.push({ x: x - 1, y: y + 1 });
           cells.push({ x, y: y + 1 });
+          cells.push({ x: x + 1, y: y + 1 });
         }
 
         if (x) {
@@ -71,12 +75,16 @@ export class Ship {
           cells.push({ x: x + 1, y });
         }
       } else {
-        if (!index && !x) {
+        if (!index && x) {
+          cells.push({ x: x - 1, y: y - 1 });
           cells.push({ x: x - 1, y });
+          cells.push({ x: x - 1, y: y + 1 });
         }
 
         if (index === arr.length - 1 && x !== maxX) {
+          cells.push({ x: x + 1, y: y - 1 });
           cells.push({ x: x + 1, y });
+          cells.push({ x: x + 1, y: y + 1 });
         }
 
         if (y) {
