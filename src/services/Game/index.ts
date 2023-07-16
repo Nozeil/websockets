@@ -134,6 +134,18 @@ export class GameService {
     return attackResponse;
   };
 
+  createFinishResponse = (winPlayer: number) => {
+    const finishResponse: RequestResponse = {
+      type: 'finish',
+      data: JSON.stringify({
+        winPlayer,
+      }),
+      id: 0,
+    };
+
+    return finishResponse;
+  };
+
   createAttackResponses = (
     x: number,
     y: number,
@@ -153,9 +165,20 @@ export class GameService {
         const response = this.createAttackResponse(cell.x, cell.y, currentPlayer, 'miss');
         attackResponses.push(response);
       });
+
+      const shouldFinish = this.isFinish(ships);
+
+      if (shouldFinish) {
+        const finishResponse = this.createFinishResponse(currentPlayer);
+        attackResponses.push(finishResponse);
+      }
     }
 
     return attackResponses;
+  };
+
+  isFinish = (ships: Ship[]) => {
+    return ships.every((ship) => ship.getShipStatus() === 'killed');
   };
 
   attack = (indexPlayer: number, x: number, y: number) => {

@@ -124,4 +124,8 @@ export class Ship {
 
     return status;
   };
+
+  getShipStatus = () => {
+    return this._status;
+  };
 }
