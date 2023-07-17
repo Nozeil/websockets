@@ -29,7 +29,6 @@ export class RegService {
     }
 
     const updateWinners = this._winners.updateWinners();
-    console.log(updateWinners);
 
     const result: HandlerReturnType = [{ ws, responses }, ...updateWinners];
 

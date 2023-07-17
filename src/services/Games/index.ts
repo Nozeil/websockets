@@ -15,6 +15,10 @@ export class GamesService {
     this._winners = winners;
   }
 
+  getGameId = () => {
+    return this._id;
+  };
+
   createGame = (ws1: WebSocket, ws2: WebSocket, player1Id: number, player2Id: number) => {
     const game = new GameService(this._id, player1Id, player2Id, ws1, ws2);
     const responses = game.createGameResponses();

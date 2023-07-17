@@ -13,4 +13,5 @@ export const REQ_RES_TYPES = {
   ATTACK: 'attack',
   RANDOM_ATTACK: 'randomAttack',
   FINISH: 'finish',
+  SINGLE_PLAY: 'single_play',
 } as const;

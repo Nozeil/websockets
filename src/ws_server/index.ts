@@ -17,7 +17,7 @@ export const startWsServer = () => {
       controller.deleteUser(ws);
     });
 
-    ws.on('message', function message(data) {
+    ws.on('message', async function message(data) {
       console.log('received: %s', data);
 
       try {
@@ -25,7 +25,7 @@ export const startWsServer = () => {
         const handler = controller.getHandler(req.type);
 
         if (handler) {
-          const webSocketsWithResponses = handler(req, this);
+          const webSocketsWithResponses = await handler(req, this);
 
           webSocketsWithResponses.forEach((wsWithResponse) => {
             wsWithResponse.responses.forEach((response) => {
