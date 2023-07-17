@@ -17,7 +17,12 @@ export class RegService {
     this._winners = winners;
   }
 
-  isValidUser = ({ name, password }: RegData) => name.length >= 5 && password.length >= 5;
+  isValidUser = ({ name, password }: RegData) => {
+    const users = Array.from(this._db.getAllUsers());
+    const user = users.find((user) => user.name === name);
+
+    return user ? user.password === password : true;
+  };
 
   regUser: Handler = (req, ws) => {
     const user = this.createUser(req, ws);
@@ -43,7 +48,7 @@ export class RegService {
       name: userData.name,
       index: isValid ? this._db.setUser(ws, userData) : -1,
       error: !isValid,
-      errorText: isValid ? '' : 'Name or password length should be not less than 5',
+      errorText: isValid ? '' : 'User already exist. Invalid password',
     };
 
     return {

@@ -38,6 +38,10 @@ class DB {
     return this._db.keys();
   };
 
+  getAllUsers = () => {
+    return this._db.values();
+  };
+
   incrementUserWins = (ws: WebSocket) => {
     const user = this.getUser(ws);
 
