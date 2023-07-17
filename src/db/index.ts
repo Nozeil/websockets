@@ -25,7 +25,7 @@ class DB {
   };
 
   setUser = (ws: WebSocket, { name, password }: RegData) => {
-    const user = { name, password, index: this._userIndex++, ws };
+    const user = { name, password, index: this._userIndex++, ws, wins: 0 };
     this._db.set(ws, user);
     return user.index;
   };
@@ -36,6 +36,14 @@ class DB {
 
   getAllWebSockets = () => {
     return this._db.keys();
+  };
+
+  incrementUserWins = (ws: WebSocket) => {
+    const user = this.getUser(ws);
+
+    if (user) {
+      user.wins++;
+    }
   };
 }
 

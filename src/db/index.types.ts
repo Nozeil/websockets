@@ -4,4 +4,5 @@ import type { RegData } from '../models/reg';
 export interface User extends RegData {
   ws: WebSocket;
   index: number;
+  wins: number;
 }

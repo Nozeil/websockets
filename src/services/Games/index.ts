@@ -2,14 +2,17 @@ import { WebSocket } from 'ws';
 import type { AddShips, AttackReq, RandomAttackReq } from '../../models/game';
 import { GameService } from '../Game';
 import type { Handler } from '../../types';
+import { WinnersService } from '../Winners';
 
 export class GamesService {
   private _id: number;
   private _games: Map<number, GameService>;
+  private _winners: WinnersService;
 
-  constructor() {
+  constructor(winners: WinnersService) {
     this._games = new Map();
     this._id = 1;
+    this._winners = winners;
   }
 
   createGame = (ws1: WebSocket, ws2: WebSocket, player1Id: number, player2Id: number) => {
@@ -30,7 +33,7 @@ export class GamesService {
     const { gameId, indexPlayer, x, y }: AttackReq = JSON.parse(req.data);
     const game = this._games.get(gameId);
 
-    return game?.attack(indexPlayer, x, y) ?? [];
+    return game?.attack(this._winners, indexPlayer, x, y) ?? [];
   };
 
   randomAttack: Handler = (req, _) => {
@@ -39,7 +42,7 @@ export class GamesService {
 
     const [randomX, randomY] = [this.generateRandomCoordinate(), this.generateRandomCoordinate()];
 
-    return game?.attack(indexPlayer, randomX, randomY) ?? [];
+    return game?.attack(this._winners, indexPlayer, randomX, randomY) ?? [];
   };
 
   generateRandomCoordinate = () => {

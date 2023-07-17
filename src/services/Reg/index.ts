@@ -4,14 +4,17 @@ import { RequestResponse } from '../../models/common';
 import { RegData } from '../../models/reg';
 import type { RoomsService } from '../Rooms';
 import type { Handler, HandlerReturnType } from '../../types';
+import { WinnersService } from '../Winners';
 
 export class RegService {
   private _db: DB;
   private _rooms: RoomsService;
+  private _winners: WinnersService;
 
-  constructor(db: DB, rooms: RoomsService) {
+  constructor(db: DB, rooms: RoomsService, winners: WinnersService) {
     this._db = db;
     this._rooms = rooms;
+    this._winners = winners;
   }
 
   isValidUser = ({ name, password }: RegData) => name.length >= 5 && password.length >= 5;
@@ -25,7 +28,10 @@ export class RegService {
       responses.push(this._rooms.updateRoom());
     }
 
-    const result: HandlerReturnType = [{ ws, responses }];
+    const updateWinners = this._winners.updateWinners();
+    console.log(updateWinners);
+
+    const result: HandlerReturnType = [{ ws, responses }, ...updateWinners];
 
     return result;
   };

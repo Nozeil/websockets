@@ -4,6 +4,7 @@ import type { RequestResponse } from '../../models/common';
 import { Ship } from '../Ship';
 import { ShipsReq } from '../../models/game';
 import type { HandlerReturnType } from '../../types';
+import { WinnersService } from '../Winners';
 
 export class GameService {
   private _id: number;
@@ -152,7 +153,8 @@ export class GameService {
     currentPlayer: number,
     status: string,
     shipId: number,
-    ships: Ship[]
+    ships: Ship[],
+    shouldFinish: boolean
   ) => {
     const mainResponse = this.createAttackResponse(x, y, currentPlayer, status);
     const attackResponses: RequestResponse[] = [mainResponse];
@@ -166,10 +168,9 @@ export class GameService {
         attackResponses.push(response);
       });
 
-      const shouldFinish = this.isFinish(ships);
-
       if (shouldFinish) {
         const finishResponse = this.createFinishResponse(currentPlayer);
+
         attackResponses.push(finishResponse);
       }
     }
@@ -181,7 +182,7 @@ export class GameService {
     return ships.every((ship) => ship.getShipStatus() === 'killed');
   };
 
-  attack = (indexPlayer: number, x: number, y: number) => {
+  attack = (winners: WinnersService, indexPlayer: number, x: number, y: number) => {
     const result: HandlerReturnType = [];
 
     if (this._turn === indexPlayer) {
@@ -200,13 +201,16 @@ export class GameService {
             shipStatus: 'alive',
           };
 
+          const shouldFinish = this.isFinish(opponent.ships);
+
           const attackResponses = this.createAttackResponses(
             x,
             y,
             indexPlayer,
             status.attackStatus,
             status.shipId,
-            opponent.ships
+            opponent.ships,
+            shouldFinish
           );
 
           if (status.attackStatus === 'miss') {
@@ -219,6 +223,11 @@ export class GameService {
             { ws: currentPlayer.ws, responses: [...attackResponses, turnResponse] },
             { ws: opponent.ws, responses: [...attackResponses, turnResponse] }
           );
+
+          if (shouldFinish) {
+            const winnersResponses = winners.updateWinnersOnFinish(currentPlayer.ws);
+            result.push(...winnersResponses);
+          }
         }
       }
     }
